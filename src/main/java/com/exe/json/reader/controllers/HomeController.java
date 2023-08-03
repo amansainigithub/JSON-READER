@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -17,7 +21,7 @@ public class HomeController {
 
     private StringBuilder  pcm;
 
-    private String PUBLIC_CLASS = "public Class ";
+    private String PUBLIC_CLASS = "public class ";
     private String CURLY_BRACES_OPEN = " { ";
     private String CURLY_BRACES_CLOSE = " } ";
     private String PRIVATE_VARIABLE_MAKER = "private String ";
@@ -26,16 +30,21 @@ public class HomeController {
     private String LIST_VAR_OPEN="List< ";
     private String LIST_VAR_CLOSE=" > ";
     private String NEXT_LINE = " \n ";
-    ArrayList<String> deepList = null;
-    ArrayList<String> classProcessMakerList= null;
 
+    private String PACKAGE_KEYWORD = "package ";
+   private ArrayList<String> deepList = null;
+   private Map<String,String> classProcessMakerList= null;
 
+    private static String  PACKAGE_PATH= "src/main/java/com/exe/json/reader/entities";
+    private static String  PACKAGE_NAME= "com.exe.json.reader.entities";
+
+    private static final String IMPORT_LIST = "import java.util.List;";
     @PostMapping("/jp")
     public String JsonParserWithCom(@RequestBody String jsonP) {
         System.out.println("****************Prepare To Fly*********************");
         pcm = new StringBuilder();
-        classProcessMakerList = new ArrayList<>();
-        deepList = new ArrayList<String>();
+        classProcessMakerList = new HashMap<>();
+        deepList = new ArrayList<>();
 
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(jsonP);
@@ -75,17 +84,53 @@ public class HomeController {
         String stringBuilderVar = pcm.toString();
         System.out.println("REVERSE DEEP-LIST :: " + deepList);
         String splitSTR = null;
-        for (String i : deepList) {
-            String splitClass[] = stringBuilderVar.split("[{]" + i + "[}]");
+        for (String classFinder : deepList) {
+            String splitClass[] = stringBuilderVar.split("[{]" + classFinder + "[}]");
             splitSTR = splitClass[1];
             stringBuilderVar = stringBuilderVar.replace(splitSTR, "");
-            stringBuilderVar = stringBuilderVar.replace("{" + i + "}", "");
-            classProcessMakerList.add(splitSTR);
+            stringBuilderVar = stringBuilderVar.replace("{" + classFinder + "}", "");
+            classProcessMakerList.put( classFinder , splitSTR );
         }
 
         System.out.println("************************");
         System.out.println("ClassMakerProcessList START" + classProcessMakerList.toString() + " ClassMakerProcessList END ");
+        classMaker();
         return classProcessMakerList.toString();
+    }
+
+
+    public void classMaker()
+    {
+        System.out.println("Class Name :: " +getClass().getName());
+        System.out.println("Package name ::" + getClass().getPackage());
+        System.out.println("");
+
+        for(String classes_key : classProcessMakerList.keySet())
+        {
+            try {
+                // Creates a Writer using FileWriter
+                     FileWriter output = new FileWriter(PACKAGE_PATH + File.separator + classes_key + ".java");
+                     // Writes the program to file
+
+                     output.write(PACKAGE_KEYWORD + PACKAGE_NAME + SEMI_COLON + NEXT_LINE);
+
+                     if(classProcessMakerList.get(classes_key).contains("List"))
+                     {
+                         output.write(IMPORT_LIST + NEXT_LINE);
+                     }
+
+                     output.write(classProcessMakerList.get(classes_key) + NEXT_LINE + CURLY_BRACES_CLOSE);
+                    // Closes the writer
+                    output.close();
+                    System.out.println( "Java File Created Success :: " + classes_key);
+            }
+
+            // Catch block to handle if exception occurs
+            catch (IOException e) {
+                // Print the exception
+                System.out.print(e.getMessage());
+            }
+        }
     }
 
 
