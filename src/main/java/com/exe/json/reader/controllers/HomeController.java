@@ -1,5 +1,6 @@
 package com.exe.json.reader.controllers;
 
+import com.exe.json.reader.helper.Helper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,24 +22,28 @@ public class HomeController {
 
     private StringBuilder  pcm;
 
-    private String PUBLIC_CLASS = "public class ";
-    private String CURLY_BRACES_OPEN = " { ";
-    private String CURLY_BRACES_CLOSE = " } ";
-    private String PRIVATE_VARIABLE_MAKER = "private String ";
-    private String PRIVATE_OBJECT_VARIABLE_MAKER = "private ";
-    private String SEMI_COLON = " ; ";
-    private String LIST_VAR_OPEN="List< ";
-    private String LIST_VAR_CLOSE=" > ";
-    private String NEXT_LINE = " \n ";
 
-    private String PACKAGE_KEYWORD = "package ";
+    private static final String  PUBLIC_CLASS = "public class ";
+    private  static final String CURLY_BRACES_OPEN = " { ";
+    private  static final String CURLY_BRACES_CLOSE = " } ";
+    private  static final String PRIVATE_VARIABLE_MAKER = "private String ";
+    private  static final String PRIVATE_OBJECT_VARIABLE_MAKER = "private ";
+    private  static final String SEMI_COLON = " ; ";
+    private  static final String LIST_VAR_OPEN="List< ";
+    private  static final String LIST_VAR_CLOSE=" > ";
+    private  static final String NEXT_LINE = " \n ";
+    private static final String PACKAGE_KEYWORD = "package ";
    private ArrayList<String> deepList = null;
    private Map<String,String> classProcessMakerList= null;
+    private static final String  PACKAGE_PATH= "src/main/java/com/exe/json/reader/entities";
+    private static final String  PACKAGE_NAME= "com.exe.json.reader.entities";
+    private static final String  IMPORT_LIST = "import java.util.List;";
 
-    private static String  PACKAGE_PATH= "src/main/java/com/exe/json/reader/entities";
-    private static String  PACKAGE_NAME= "com.exe.json.reader.entities";
+    private static final String  DOT = ".";
 
-    private static final String IMPORT_LIST = "import java.util.List;";
+    private static final String IMPORT = "import ";
+
+
     @PostMapping("/jp")
     public String JsonParserWithCom(@RequestBody String jsonP) {
         System.out.println("****************Prepare To Fly*********************");
@@ -93,22 +98,21 @@ public class HomeController {
         }
 
         System.out.println("************************");
-        System.out.println("ClassMakerProcessList START" + classProcessMakerList.toString() + " ClassMakerProcessList END ");
-        classMaker();
+        //System.out.println("ClassMakerProcessList START" + classProcessMakerList.toString() + " ClassMakerProcessList END ");
+        this.classMaker();
         return classProcessMakerList.toString();
     }
 
 
     public void classMaker()
     {
-        System.out.println("Class Name :: " +getClass().getName());
-        System.out.println("Package name ::" + getClass().getPackage());
-        System.out.println("");
+        System.out.println( "Class Name :: " + getClass().getName());
+        System.out.println( "Package name ::" + PACKAGE_NAME);
 
         for(String classes_key : classProcessMakerList.keySet())
         {
             try {
-                // Creates a Writer using FileWriter
+                     // Creates a Writer using FileWriter
                      FileWriter output = new FileWriter(PACKAGE_PATH + File.separator + classes_key + ".java");
                      // Writes the program to file
 
@@ -124,7 +128,6 @@ public class HomeController {
                     output.close();
                     System.out.println( "Java File Created Success :: " + classes_key);
             }
-
             // Catch block to handle if exception occurs
             catch (IOException e) {
                 // Print the exception
@@ -207,7 +210,7 @@ public class HomeController {
 
     public void classMaker(String className)
     {
-        pcm.append( PUBLIC_CLASS + firstLetterCap(className.toLowerCase()));
+        pcm.append( PUBLIC_CLASS + Helper.firstLetterCap(className.toLowerCase()));
         curlsBracesOpening();
     }
     public void curlsBracesOpening()
@@ -232,45 +235,7 @@ public class HomeController {
         pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + LIST_VAR_OPEN + variableName.substring(0, 1).toUpperCase() + variableName.substring(1) + LIST_VAR_CLOSE  + variableName + SEMI_COLON + NEXT_LINE );
     }
 
-    static String firstLetterCap( String s )
-    {
-        // to keep track of spaces
-        int ctr = 0 ;
-        // variable to hold the length of the string
-        int n = s.length( ) ;
-        // converting the string expression to character array
-        char ch[ ] = s.toCharArray( ) ;
-        // // keep track of indices of ch[ ] array
-        int c = 0 ;
-        // traversing through each character of the array
-        for ( int i = 0; i < n; i++ )
-        {
-            // The first position of the array i.e., the first letter must be
-            // converted to the upper case. We checked this before the second
-            // if statement as that statement is executed only when it encounters space and,
-            // there is no space before the first letter of a string.
-            if( i == 0 )
-                // converting to upper case using the toUpperCase( ) in-built function
-                ch[ i ] = Character.toUpperCase( ch[ i ] ) ;
-            // as we need to remove all the spaces in between, we check for empty
-            // spaces
-            if ( ch[ i ] == ' ' )
-            {
-                // incrementing the space counter by 1
-                ctr++ ;
-                // converting the letter immediately after the space to upper case
-                ch[ i + 1 ] = Character.toUpperCase( ch[ i + 1] ) ;
-                // continue the loop
-                continue ;
-            }
-            // if the space is not encountered simply copy the character
-            else
-                ch[ c++ ] = ch[ i ] ;
-        }
-        // new string will be reduced as the spaces have been removed
-        // Thus returning the new string with new size
-        return String.valueOf( ch, 0, n - ctr ) ;
-    }
+
     // Driver code
 }
 
