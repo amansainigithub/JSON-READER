@@ -33,15 +33,20 @@ public class HomeController {
     private  static final String LIST_VAR_CLOSE=" > ";
     private  static final String NEXT_LINE = " \n ";
     private static final String PACKAGE_KEYWORD = "package ";
-   private ArrayList<String> deepList = null;
-   private Map<String,String> classProcessMakerList= null;
+    private ArrayList<String> deepList = null;
+    private Map<String,String> classProcessMakerList= null;
     private static final String  PACKAGE_PATH= "src/main/java/com/exe/json/reader/entities";
     private static final String  PACKAGE_NAME= "com.exe.json.reader.entities";
-    private static final String  IMPORT_LIST = "import java.util.List;";
-
-    private static final String  DOT = ".";
-
     private static final String IMPORT = "import ";
+    private static final String IMPORT_LIST = IMPORT + " java.util.List;";
+
+    private static final String DOT = ".";
+
+    private static final String ONE_SPACE = " ";
+
+    private static final String BACK_SLASH = "/";
+
+
 
 
     @PostMapping("/jp")
@@ -100,7 +105,27 @@ public class HomeController {
         System.out.println("************************");
         //System.out.println("ClassMakerProcessList START" + classProcessMakerList.toString() + " ClassMakerProcessList END ");
         this.classMaker();
+        //this.generateSetterGetter();
         return classProcessMakerList.toString();
+    }
+
+    private void generateSetterGetter() {
+        for(String classes_key : classProcessMakerList.keySet()) {
+
+            String spy =  classProcessMakerList.get(classes_key);
+            String back_slash_splitter[] = spy.split("\\r?\\n|\\r");
+
+            for(int i = 0 ;i <back_slash_splitter.length -1 ; i++)
+            {
+                System.out.println("splitter :: " + back_slash_splitter[i]);
+                if(back_slash_splitter[i].contains(CURLY_BRACES_OPEN)
+                   && back_slash_splitter[i].contains(CURLY_BRACES_CLOSE))
+                {
+                    classProcessMakerList.get(classes_key);
+                }
+            }
+            System.out.println("**********");
+        }
     }
 
 
@@ -122,8 +147,26 @@ public class HomeController {
                      {
                          output.write(IMPORT_LIST + NEXT_LINE);
                      }
+                        output.write(classProcessMakerList.get(classes_key) + NEXT_LINE );
 
-                     output.write(classProcessMakerList.get(classes_key) + NEXT_LINE + CURLY_BRACES_CLOSE);
+                        String spy =  classProcessMakerList.get(classes_key);
+                        String back_slash_splitter[] = spy.split("\\r?\\n|\\r");
+
+                        for(int i = 0 ;i <back_slash_splitter.length -1 ; i++)
+                        {
+                            System.out.println("splitter :: " + back_slash_splitter[i]);
+                            if(back_slash_splitter[i].contains(CURLY_BRACES_OPEN)
+                                && back_slash_splitter[i].contains(CURLY_BRACES_CLOSE))
+                            {
+
+                                int startingIndex = back_slash_splitter[i].indexOf("{");
+                                int closingIndex = back_slash_splitter[i].indexOf("}");
+                                String bracesVale = back_slash_splitter[i].substring(startingIndex + 1, closingIndex);
+                                output.write(bracesVale +  ONE_SPACE + CURLY_BRACES_CLOSE);
+                            }
+                        }
+
+
                     // Closes the writer
                     output.close();
                     System.out.println( "Java File Created Success :: " + classes_key);
@@ -223,19 +266,20 @@ public class HomeController {
     }
     public void privateVariableMaker(String variableName)
     {
-        pcm.append( PRIVATE_VARIABLE_MAKER + variableName.toLowerCase() + SEMI_COLON + NEXT_LINE );
+        pcm.append( PRIVATE_VARIABLE_MAKER + CURLY_BRACES_OPEN + variableName.toLowerCase() + CURLY_BRACES_CLOSE + SEMI_COLON + NEXT_LINE );
     }
     public void privateObjectMakerVariable(String variableName)
     {
         String declaration = variableName.substring(0, 1).toUpperCase() + variableName.substring(1).toLowerCase();
-        pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + declaration +" "+ variableName.toLowerCase() +  SEMI_COLON + NEXT_LINE );
+                   pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + declaration +" "+  CURLY_BRACES_OPEN + variableName.toLowerCase()
+                   + CURLY_BRACES_CLOSE +  SEMI_COLON + NEXT_LINE );
     }
     public void privateListMakerVariable(String variableName)
     {
-        pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + LIST_VAR_OPEN + variableName.substring(0, 1).toUpperCase() + variableName.substring(1) + LIST_VAR_CLOSE  + variableName + SEMI_COLON + NEXT_LINE );
+        pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + LIST_VAR_OPEN + variableName.substring(0, 1).toUpperCase() +
+                   variableName.substring(1) + LIST_VAR_CLOSE  + CURLY_BRACES_OPEN + variableName +
+                   CURLY_BRACES_CLOSE + SEMI_COLON + NEXT_LINE );
     }
 
-
-    // Driver code
 }
 
