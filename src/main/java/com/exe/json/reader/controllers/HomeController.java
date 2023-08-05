@@ -59,6 +59,8 @@ public class HomeController {
 
     private static final String GET = "get" ;
 
+    private static final String DOLLER = "$" ;
+
     private static final String RETURN = "return ";
 
 
@@ -160,10 +162,12 @@ public class HomeController {
                             if(back_slash_splitter[i].contains(DOUBLE_CURLY_BRACES_OPEN)
                                 && back_slash_splitter[i].contains(DOUBLE_CURLY_BRACES_CLOSE))
                             {
-                                int startingIndex = back_slash_splitter[i].indexOf("{{");
-                                int closingIndex = back_slash_splitter[i].indexOf("}}");
-                                String bracesValue = back_slash_splitter[i].substring(startingIndex + 2, closingIndex);
-                                this.makeGetter(bracesValue.trim() , fileWriter);
+                                    int startingIndex = back_slash_splitter[i].indexOf("{{");
+                                    int closingIndex = back_slash_splitter[i].indexOf("}}");
+                                    String bracesValue = back_slash_splitter[i].substring(startingIndex + 2, closingIndex);
+                                    this.makeGetter(bracesValue.trim() , fileWriter , "{{" );
+
+
                             }
                         }
 
@@ -181,10 +185,12 @@ public class HomeController {
     }
 
 
-    public void makeGetter(String bracesValue , FileWriter fileWriter) throws IOException {
+    public void makeGetter(String bracesValue , FileWriter fileWriter , String identifier) throws IOException {
+
             fileWriter.write(NEXT_LINE + PUBLIC + SG_STRING + GET + bracesValue + PARENTHESIS_OPEN + PARENTHESIS_CLOSE +
-                                CURLY_BRACES_OPEN + RETURN + bracesValue + SEMI_COLON + CURLY_BRACES_CLOSE );
-    }
+                    CURLY_BRACES_OPEN + RETURN + bracesValue + SEMI_COLON + CURLY_BRACES_CLOSE );
+
+           }
 
 
 
@@ -280,8 +286,9 @@ public class HomeController {
     public void privateObjectMakerVariable(String variableName)
     {
         String declaration = variableName.substring(0, 1).toUpperCase() + variableName.substring(1).toLowerCase();
-                   pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + declaration +" "+  DOUBLE_CURLY_BRACES_OPEN + variableName.toLowerCase()
-                   + DOUBLE_CURLY_BRACES_CLOSE +  SEMI_COLON + NEXT_LINE );
+                   pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + DOLLER + declaration + DOLLER + ONE_SPACE +
+                           DOUBLE_CURLY_BRACES_OPEN + variableName.toLowerCase() +
+                           DOUBLE_CURLY_BRACES_CLOSE +  SEMI_COLON + NEXT_LINE );
     }
     public void privateListMakerVariable(String variableName)
     {
