@@ -50,25 +50,27 @@ public class HomeController {
     private static final String BACK_SLASH = "/";
 
     private static final String VOID = "void"+ONE_SPACE;
-
     private static final String SG_STRING = "String" + ONE_SPACE;
-
     private static final String PARENTHESIS_OPEN = "(";
-
     private static final String PARENTHESIS_CLOSE = ")";
-
     private static final String GET = "get" ;
-
     private static final String DOLLER = "$" ;
-
     private static final String RETURN = "return ";
 
+    private static final String EVERY_LINE_SPLITTER_PATTERN = "\\r?\\n|\\r";
+
+    public static final String ANSI_GREEN = "\u001B[32m";
+
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_BLACK = "\u001B[30m";
 
 
 
     @PostMapping("/jp")
     public String JsonParserWithCom(@RequestBody String jsonP) {
-        System.out.println("****************Prepare To Fly*********************");
+        //Prepare to fly
+        prepareToFly();
+
         pcm = new StringBuilder();
         classProcessMakerList = new HashMap<>();
         deepList = new ArrayList<>();
@@ -109,7 +111,8 @@ public class HomeController {
         Collections.reverse(deepList);
 
         String stringBuilderVar = pcm.toString();
-        System.out.println("REVERSE DEEP-LIST :: " + deepList);
+        System.out.print(ANSI_BLACK + "REVERSE DEEP-LIST :: ");
+        System.out.println(ANSI_GREEN  + deepList);
         String splitSTR = null;
         for (String classFinder : deepList) {
             String splitClass[] = stringBuilderVar.split("[{]" + classFinder + "[}]");
@@ -119,7 +122,7 @@ public class HomeController {
             classProcessMakerList.put( classFinder , splitSTR );
         }
 
-        System.out.println("************************");
+        System.out.println(ANSI_BLACK + "************************");
         //System.out.println("ClassMakerProcessList START" + classProcessMakerList.toString() + " ClassMakerProcessList END ");
         this.classMaker();
         //this.generateSetterGetter();
@@ -131,8 +134,9 @@ public class HomeController {
 
     public void classMaker()
     {
-        System.out.println( "Class Name :: " + getClass().getName());
-        System.out.println( "Package name ::" + PACKAGE_NAME);
+        System.out.println(ANSI_BLACK + "Class Name :: " + ANSI_GREEN + getClass().getName());
+        System.out.println(ANSI_BLACK + "Package name ::" + ANSI_GREEN + PACKAGE_NAME);
+        System.out.println(ANSI_BLACK + "Total classes ::" + ANSI_GREEN + deepList.size());
 
         for(String classes_key : classProcessMakerList.keySet())
         {
@@ -148,33 +152,31 @@ public class HomeController {
                          fileWriter.write(IMPORT_LIST + NEXT_LINE);
                      }
                         String removeVarBraces =  classProcessMakerList.get(classes_key).
-                                                    replace("{{","").
-                                                    replace("}}","");
+                                                    replace(DOUBLE_CURLY_BRACES_OPEN,"").
+                                                    replace(DOUBLE_CURLY_BRACES_CLOSE,"");
 
                         fileWriter.write(removeVarBraces + NEXT_LINE );
 
                         String spy =  classProcessMakerList.get(classes_key);
-                        String back_slash_splitter[] = spy.split("\\r?\\n|\\r");
+                        String every_line_splitter[] = spy.split(EVERY_LINE_SPLITTER_PATTERN);
 
-                        for(int i = 0 ;i <back_slash_splitter.length -1 ; i++)
+                        for(int i = 0 ;i < every_line_splitter.length -1 ; i++)
                         {
-                            System.out.println("splitter :: " + back_slash_splitter[i]);
-                            if(back_slash_splitter[i].contains(DOUBLE_CURLY_BRACES_OPEN)
-                                && back_slash_splitter[i].contains(DOUBLE_CURLY_BRACES_CLOSE))
+                            if(every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_OPEN)
+                                && every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_CLOSE))
                             {
-                                    int startingIndex = back_slash_splitter[i].indexOf("{{");
-                                    int closingIndex = back_slash_splitter[i].indexOf("}}");
-                                    String bracesValue = back_slash_splitter[i].substring(startingIndex + 2, closingIndex);
-                                    this.makeGetter(bracesValue.trim() , fileWriter , "{{" );
-
-
+                                    int startingIndex = every_line_splitter[i].indexOf(DOUBLE_CURLY_BRACES_OPEN.trim());
+                                    int closingIndex = every_line_splitter[i].indexOf(DOUBLE_CURLY_BRACES_CLOSE.trim());
+                                    String bracesValue = every_line_splitter[i].substring(startingIndex + 2, closingIndex);
+                                    this.makeGetter(bracesValue.trim() , fileWriter , DOUBLE_CURLY_BRACES_OPEN );
                             }
                         }
 
                         fileWriter.write(CURLY_BRACES_CLOSE);
                     // Closes the writer
                     fileWriter.close();
-                    System.out.println( "Java File Created Success :: " + classes_key);
+                    System.out.println(ANSI_BLACK + "File Created [ NAME: " + ANSI_GREEN + classes_key
+                                       + " => " + ANSI_BLUE + "SUCCESS" + " ] ");
             }
             // Catch block to handle if exception occurs
             catch (IOException e) {
@@ -295,6 +297,23 @@ public class HomeController {
         pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + LIST_VAR_OPEN + variableName.substring(0, 1).toUpperCase() +
                    variableName.substring(1) + LIST_VAR_CLOSE  + DOUBLE_CURLY_BRACES_OPEN + variableName +
                    DOUBLE_CURLY_BRACES_CLOSE + SEMI_COLON + NEXT_LINE );
+    }
+
+
+
+
+    //Prepare To Flying
+    public void prepareToFly()
+    {
+        String MESSAGE = "************ Prepare To Fly ***************";
+        System.out.println( ANSI_GREEN + MESSAGE );
+    }
+
+    //Landing Success
+    public void landingSuccess()
+    {
+        String MESSAGE = "********** Landing Success *************";
+        System.out.println( ANSI_GREEN + MESSAGE );
     }
 
 }
