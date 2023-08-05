@@ -1,8 +1,10 @@
 package com.exe.json.reader.entities ;  
   
- public class Jwt 
+ public  class Jwt 
   {  
- private String  { security }  ;  
- private String  { filters }  ;  
+ private String   security   ;  
+ private String   filters   ;  
   
-  security   }  filters   } 
+  
+ public String getsecurity() { return security ;  }  
+ public String getfilters() { return filters ;  }  } 

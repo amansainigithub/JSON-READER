@@ -1,8 +1,10 @@
 package com.exe.json.reader.entities ;  
   
- public class Jenkins 
+ public  class Jenkins 
   {  
- private String  { tools }  ;  
- private String  { pipeline }  ;  
+ private String   tools   ;  
+ private String   pipeline   ;  
   
-  tools   }  pipeline   } 
+  
+ public String gettools() { return tools ;  }  
+ public String getpipeline() { return pipeline ;  }  } 

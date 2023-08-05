@@ -1,9 +1,12 @@
 package com.exe.json.reader.entities ;  
   
- public class Producer 
+ public  class Producer 
   {  
- private String  { consume }  ;  
- private String  { selfer }  ;  
- private String  { version }  ;  
+ private String   consume   ;  
+ private String   selfer   ;  
+ private String   version   ;  
   
-  consume   }  selfer   }  version   } 
+  
+ public String getconsume() { return consume ;  }  
+ public String getselfer() { return selfer ;  }  
+ public String getversion() { return version ;  }  } 

@@ -1,8 +1,10 @@
 package com.exe.json.reader.entities ;  
   
- public class Newarray 
+ public  class Newarray 
   {  
- private String  { bitwise }  ;  
- private String  { leaker }  ;  
+ private String   bitwise   ;  
+ private String   leaker   ;  
   
-  bitwise   }  leaker   } 
+  
+ public String getbitwise() { return bitwise ;  }  
+ public String getleaker() { return leaker ;  }  } 
