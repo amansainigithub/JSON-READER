@@ -21,15 +21,12 @@ import java.util.*;
 public class HomeController {
 
     private StringBuilder  pcm;
-
     private static final String ONE_SPACE = " ";
     private static final String  PUBLIC = "public ";
     private static final String  PUBLIC_CLASS = PUBLIC + ONE_SPACE + "class" +ONE_SPACE;
     private  static final String CURLY_BRACES_OPEN = " { ";
     private  static final String CURLY_BRACES_CLOSE = " } ";
-
     private  static final String DOUBLE_CURLY_BRACES_OPEN = " {{ ";
-
     private  static final String DOUBLE_CURLY_BRACES_CLOSE = " }} ";
     private  static final String PRIVATE_VARIABLE_MAKER = "private String ";
     private  static final String PRIVATE_OBJECT_VARIABLE_MAKER = "private ";
@@ -54,13 +51,11 @@ public class HomeController {
     private static final String PARENTHESIS_OPEN = "(";
     private static final String PARENTHESIS_CLOSE = ")";
     private static final String GET = "get" ;
-    private static final String DOLLER = "$" ;
+    private static final String ARRAY_OPEN = "[" ;
+    private static final String ARRAY_CLOSE = "]" ;
     private static final String RETURN = "return ";
-
     private static final String EVERY_LINE_SPLITTER_PATTERN = "\\r?\\n|\\r";
-
     public static final String ANSI_GREEN = "\u001B[32m";
-
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_BLACK = "\u001B[30m";
 
@@ -153,22 +148,53 @@ public class HomeController {
                      }
                         String removeVarBraces =  classProcessMakerList.get(classes_key).
                                                     replace(DOUBLE_CURLY_BRACES_OPEN,"").
-                                                    replace(DOUBLE_CURLY_BRACES_CLOSE,"");
+                                                    replace(DOUBLE_CURLY_BRACES_CLOSE,"").
+                                                    replace(ARRAY_OPEN,"").
+                                                    replace(ARRAY_CLOSE,"");
 
-                        fileWriter.write(removeVarBraces + NEXT_LINE );
 
                         String spy =  classProcessMakerList.get(classes_key);
                         String every_line_splitter[] = spy.split(EVERY_LINE_SPLITTER_PATTERN);
 
+                for(int i = 0 ;i < every_line_splitter.length -1 ; i++)
+                {
+                    if(every_line_splitter[i].contains(ARRAY_OPEN)
+                       && every_line_splitter[i].contains(ARRAY_CLOSE))
+                    {
+                        int startingIndex = every_line_splitter[i].indexOf(ARRAY_OPEN.trim());
+                        int closingIndex = every_line_splitter[i].indexOf(ARRAY_CLOSE.trim());
+                        String bracesValue = every_line_splitter[i].substring(startingIndex + 1, closingIndex);
+                        fileWriter.write(IMPORT + ONE_SPACE + PACKAGE_NAME +DOT + bracesValue + SEMI_COLON);
+                    }
+                }
+
+                fileWriter.write(removeVarBraces + NEXT_LINE );
+
                         for(int i = 0 ;i < every_line_splitter.length -1 ; i++)
                         {
                             if(every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_OPEN)
-                                && every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_CLOSE))
+                                && every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_CLOSE)
+                                || every_line_splitter[i].contains(ARRAY_OPEN)
+                                && every_line_splitter[i].contains(ARRAY_CLOSE) )
                             {
+                                if(every_line_splitter[i].contains(ARRAY_OPEN)
+                                   && every_line_splitter[i].contains(ARRAY_CLOSE))
+                                {
+                                    int startingIndex = every_line_splitter[i].indexOf(ARRAY_OPEN.trim());
+                                    int closingIndex = every_line_splitter[i].indexOf(ARRAY_CLOSE.trim());
+                                    String bracesValue = every_line_splitter[i].substring(startingIndex + 1, closingIndex);
+                                    this.makeGetter(bracesValue.trim(), fileWriter, ARRAY_OPEN);
+
+                                }else if(every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_OPEN)
+                                        && every_line_splitter[i].contains(DOUBLE_CURLY_BRACES_CLOSE))
+                                {
                                     int startingIndex = every_line_splitter[i].indexOf(DOUBLE_CURLY_BRACES_OPEN.trim());
                                     int closingIndex = every_line_splitter[i].indexOf(DOUBLE_CURLY_BRACES_CLOSE.trim());
                                     String bracesValue = every_line_splitter[i].substring(startingIndex + 2, closingIndex);
-                                    this.makeGetter(bracesValue.trim() , fileWriter , DOUBLE_CURLY_BRACES_OPEN );
+                                    this.makeGetter(bracesValue.trim(), fileWriter, DOUBLE_CURLY_BRACES_OPEN);
+
+                                 }
+
                             }
                         }
 
@@ -189,13 +215,16 @@ public class HomeController {
 
     public void makeGetter(String bracesValue , FileWriter fileWriter , String identifier) throws IOException {
 
-            fileWriter.write(NEXT_LINE + PUBLIC + SG_STRING + GET + bracesValue + PARENTHESIS_OPEN + PARENTHESIS_CLOSE +
-                    CURLY_BRACES_OPEN + RETURN + bracesValue + SEMI_COLON + CURLY_BRACES_CLOSE );
+            if(identifier.equals(DOUBLE_CURLY_BRACES_OPEN)){
+                fileWriter.write(NEXT_LINE + PUBLIC + SG_STRING + GET + bracesValue + PARENTHESIS_OPEN + PARENTHESIS_CLOSE +
+                        CURLY_BRACES_OPEN + RETURN + bracesValue + SEMI_COLON + CURLY_BRACES_CLOSE );
+            }else if(identifier.equals(ARRAY_OPEN)){
+
+                fileWriter.write(NEXT_LINE + PUBLIC + this.firstLetterCapital(bracesValue) + NEXT_LINE + GET + bracesValue + PARENTHESIS_OPEN + PARENTHESIS_CLOSE +
+                        CURLY_BRACES_OPEN + RETURN + bracesValue.toLowerCase() + SEMI_COLON + CURLY_BRACES_CLOSE );
+            }
 
            }
-
-
-
 
     public void isJsonObject(JsonElement element) {
         JsonObject obj = element.getAsJsonObject();
@@ -288,7 +317,7 @@ public class HomeController {
     public void privateObjectMakerVariable(String variableName)
     {
         String declaration = variableName.substring(0, 1).toUpperCase() + variableName.substring(1).toLowerCase();
-                   pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + DOLLER + declaration + DOLLER + ONE_SPACE +
+                   pcm.append( PRIVATE_OBJECT_VARIABLE_MAKER + ARRAY_OPEN + declaration + ARRAY_CLOSE + ONE_SPACE +
                            DOUBLE_CURLY_BRACES_OPEN + variableName.toLowerCase() +
                            DOUBLE_CURLY_BRACES_CLOSE +  SEMI_COLON + NEXT_LINE );
     }
@@ -314,6 +343,19 @@ public class HomeController {
     {
         String MESSAGE = "********** Landing Success *************";
         System.out.println( ANSI_GREEN + MESSAGE );
+    }
+
+
+
+    public String firstLetterCapital(String value)
+    {
+        // second substring contains remaining letters
+        String firstLetter = value.substring(0, 1);
+        String remainingLetters = value.substring(1, value.length());
+        // change the first letter to uppercase
+        firstLetter = firstLetter.toUpperCase();
+        // join the two substrings
+        return firstLetter + remainingLetters;
     }
 
 }
